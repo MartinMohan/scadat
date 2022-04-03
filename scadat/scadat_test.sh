@@ -32,7 +32,7 @@ fi
 # Test bad TANGO_HOST's
 TEMP=`echo $TANGO_HOST`
 unset TANGO_HOST
-assertgrep.sh "scadat -v" "0.4"
+assertgrep.sh "scadat -v" "0.5.0"
 export TANGO_HOST="InvalidHostName:1234"
 assertgrep.sh "scadat -v" "InvalidHostName:1234 openDB <class 'socket.gaierror'>" stderr
 export TANGO_HOST=$TEMP

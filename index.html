@@ -1,7 +1,7 @@
 <html><body><b><a href="https://pypi.python.org/pypi/scadat">scadat</a></b>
 is a linux command line interface to the open source scada
 <a href="https://en.wikipedia.org/wiki/TANGO" target="_blank">
-<img src="tango_logo.jpg.png" alt="Tango_logo" height="42" width="42"></a>
+<img src="tango_logo.png" alt="Tango_logo" height="42" width="42"></a>
 
 <p><b>For help:</b> scadat -h</p>
 <head><title>scadat</title></head>
@@ -28,8 +28,18 @@ optional arguments:
 
 Install on debian or ubuntu
 ---------------------------
-1. Install <a href="https://pypi.python.org/pypi/PyTango">PyTango</a>
-sudo apt-get install python-pytango
+1. Install <a href="https://tango-controls.readthedocs.io/en/latest/installation/tango-on-linux.html#debian-ubuntu">Tango</a>
+apt install mariadb-server
+
+vi /etc/mysql/my.cnf
+[client]
+user=mysqluser
+password=mysqlpass
+
+>mysql
+
+apt install tango-db tango-test python-pytango
+
 2. Install <a href="https://pypi.python.org/pypi/scadat">scadat</a>
 git clone https://github.com/martinmohan99/scadat
 cd scadat/scadat
