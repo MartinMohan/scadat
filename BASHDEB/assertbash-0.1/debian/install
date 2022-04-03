@@ -1,0 +1,5 @@
+assertbash.sh usr/bin
+assertequal.sh usr/bin
+assertfalse.sh usr/bin
+asserttrue.sh usr/bin
+assertgrep.sh usr/bin

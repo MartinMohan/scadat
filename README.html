@@ -1,0 +1,16 @@
+<head><title>scadat</title></head>
+<p><b>scadat</b></p>
+<pre>
+<p>scadat -h</p>
+b"Usage: [-h] [-v] [-t T] [ -l | -r R [R ...] | -a A [A] | -c C [C] | -p P [P]]\n\nLinux command line interface to tango\n\noptional arguments:\n  -h            show this help message and exit\n  -v            increase verbosity using -v,-vv,-vvv\n  -t T          Override TANGO_HOST environment variable e.g.\n                scadat -l -t scadat.org:10000\n  -l            List tango devices\n  -r R [R...]   Read attributes,commands and properties for devices: e.g.\n                scadat -r sys/tg_test/1\n  -a A [A]      Read/Write attributes: e.g.\n                scadat -a sys/tg_test/1/string_scalar 'hello world'\n  -c C [C]      Read/Write commands: e.g.\n                scadat -c sys/tg_test/1/DevLong 1234\n  -p P [P]      Read/Write properties: e.g.\n                scadat -p sys/tg_test/1/myproperty test\n"
+</pre>
+
+<body>
+<br>
+<p>Web sites:</p>
+
+<p>
+<a href="http://www.scadat.org">http://www.scadat.org</a><br>
+<a href="http://www.tango-controls.org">http://www.tango-controls.org</a><br>
+</p>
+</body>

@@ -1,0 +1,28 @@
+Format: 1.8
+Date: Thu, 22 Oct 2015 10:51:40 +0200
+Source: assertbash
+Binary: assertbash
+Architecture: source all
+Version: 0.1-1
+Distribution: unstable
+Urgency: low
+Maintainer: me <martinmohan@yahoo.com>
+Changed-By: me <martinmohan@yahoo.com>
+Description:
+ assertbash - <insert up to 60 chars description>
+Changes:
+ assertbash (0.1-1) unstable; urgency=low
+ .
+   * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+Checksums-Sha1:
+ e0c076cdabb693f4a9f00407fcdfead150b12e7e 554 assertbash_0.1-1.dsc
+ 55153e0d5420687e15a68446335cd96ae85c3f11 3326 assertbash_0.1-1.tar.gz
+ 356a95115f0852dcf801359c4552ee0c2394f2c3 3108 assertbash_0.1-1_all.deb
+Checksums-Sha256:
+ 0672e30fa81765e269c6b4f2a80cdbc74dfb050b2ae53da3ee7d9f886470303e 554 assertbash_0.1-1.dsc
+ ced932e671f93b165c1cf39d3dcc14d4a7bd00c5a63ae32c8c00d09b23c74129 3326 assertbash_0.1-1.tar.gz
+ 64a11cd5904eab1f9ffc9b91c0703dbcc046e35141590ef6bc54038cac0ee163 3108 assertbash_0.1-1_all.deb
+Files:
+ b27487936886d54b7c720da916214a89 554 unknown optional assertbash_0.1-1.dsc
+ 76c93eb6c0af48e67a2b3863c0b5d731 3326 unknown optional assertbash_0.1-1.tar.gz
+ 34db60b4aa5955acdea0f67c6c7675d7 3108 unknown optional assertbash_0.1-1_all.deb

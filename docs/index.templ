@@ -1,0 +1,40 @@
+<html><body><b><a href="https://pypi.python.org/pypi/scadat">scadat</a></b>
+is a linux command line interface to the open source scada
+<a href="https://en.wikipedia.org/wiki/TANGO" target="_blank">
+<img src="tango_logo.jpg.png" alt="Tango_logo" height="42" width="42"></a>
+
+<p><b>For help:</b> scadat -h</p>
+<head><title>scadat</title></head>
+<pre>
+{0}
+
+Install on debian or ubuntu
+---------------------------
+1. Install <a href="https://pypi.python.org/pypi/PyTango">PyTango</a>
+sudo apt-get install python-pytango
+2. Install <a href="https://pypi.python.org/pypi/scadat">scadat</a>
+sudo pip install scadat or
+sudo pip install --no-deps -I 'scadat==0.4.8' # install older versions
+
+Testing
+-------
+scadat_test.sh will run unit tests.
+scadat has been tested on debian and ubuntu but should run on other os
+
+Notes
+-----
+1. scadat can be used alone or in combination with unix tools like grep ,sort 
+    scadat -l | xargs scadat -vvv -r  # list all values on a TANGO bus
+    scadat -r sys/tg_test/1 | sort
+2. TANGO_HOST default=127.0.0.1:1000. To override default modify TANGO_HOST variable or -t command line option. 
+3. A script scadat_search.sh can be used to search for tango systems using ip addresses. netcat (<a href="http://www.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man1/nc.1?query=nc"/>nc</a>) must be installed.
+4. Use <a href="http://scadat.org/regexf.html">regexf</a> to define a tango naming convention. Then use scadat to check if names are correct .e.g. scadat -l | xargs regexf -v
+5. Properties registered using jive do not appear if registered using default property tango ticket (<a href="https://sourceforge.net/p/tango-cs/feature-requests/121/">#121</a>, <a href="https://sourceforge.net/p/tango-cs/bugs/777/">#777</a>)
+6. "scadat -p sys/tg_test/1/myproperty test" throws an exception (but property is still registered)?
+7. contact martinmohan(at)yahoo.com to report bugs
+
+CHANGES.txt
+-----------
+{1}
+</pre>
+</body></html>

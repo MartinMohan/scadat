@@ -1,0 +1,8 @@
+v<version>, <date>
+0.1.5 (30/05/2014) Initial version
+0.4.2 (28/12/2015) scripts #!/bin/bash->#!/bin/sh (better posix compliance)
+0.4.8 (16/09/2016) Updated help menu
+0.4.10 (13/10/2016) SUPER_TANGO=true This disables access control (To re-enable set environment SUPER_TANGO=false)
+0.4.11 (13/10/2016) scadat_test.sh exits if sys/tg_test/1 is not running
+       (01/08/2017) scadat_tango -l  If no RunningServers in Starter list all
+0.4.12 (03/04/2022) Moved to github
