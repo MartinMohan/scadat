@@ -1,4 +1,0 @@
-include README.rst
-include *.txt
-recursive-include docs *.txt
-include CHANGES.txt

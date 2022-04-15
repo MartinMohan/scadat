@@ -1,5 +1,0 @@
-include scadat
-include *.txt
-recursive-include scadat *.py
-prune Release.py ReleaseDocs.py
-#recursive-include docs *.txt

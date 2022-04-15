@@ -1,2 +1,0 @@
-remove scadat -a, -c , -p => replace with scadat -w. Software can detect if it is a command or property or attr
-Delete unused stuff

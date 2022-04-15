@@ -1,8 +1,0 @@
-989642ed9ade3859b4aa89daed84e8db  usr/bin/assertbash.sh
-c1033fa4e17116a75ab2f74ed4866fa8  usr/bin/assertequal.sh
-ecfe0a39043ddac7e98986487d61649d  usr/bin/assertfalse.sh
-ad194f0a2c244fc78fe651a88bb2164c  usr/bin/assertgrep.sh
-4843fa59c83f92cc692f85c1e12baf66  usr/bin/asserttrue.sh
-8cf803928d027d478d58a1f2652aca81  usr/share/doc/assertbash/README.Debian
-b2bcfa8879a522fa6276558e0bd57620  usr/share/doc/assertbash/changelog.Debian.gz
-0a29f7444e89ff042b730d042eda7bd2  usr/share/doc/assertbash/copyright
