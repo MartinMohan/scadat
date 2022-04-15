@@ -1,4 +1,4 @@
-<html><body><b><a href="https://pypi.python.org/pypi/scadat">scadat</a></b>
+<html><body><b><a href="https://github.com/martinmohan/scadat">scadat</a></b>
 is a linux command line interface to the open source scada
 <a href="https://en.wikipedia.org/wiki/TANGO" target="_blank">
 <img src="tango_logo.png" alt="Tango_logo" height="42" width="42"></a>
@@ -35,17 +35,18 @@ vi /etc/mysql/my.cnf
 user=mysqluser
 password=mysqlpass
 
-apt install tango-db tango-test libtango-tools python-pytango
+apt install tango-db tango-test python-pytango
 
 Install scadat
 ---------------------------
-git clone https://github.com/martinmohan99/scadat
+git clone https://github.com/martinmohan/scadat
 cd scadat
 ./scadat -h
 
 Test
 -------
-scadat_test.sh will run unit tests.
+cd test
+./scadat_test.sh will run unit tests.
 
 CHANGES.txt
 -----------
