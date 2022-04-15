@@ -26,9 +26,8 @@ optional arguments:
                 scadat -p sys/tg_test/1/myproperty test
 
 
-Install on debian or ubuntu
+Install <a href="https://tango-controls.readthedocs.io/en/latest/installation/tango-on-linux.html#debian-ubuntu">Tango</a> on debian or ubuntu
 ---------------------------
-1. Install <a href="https://tango-controls.readthedocs.io/en/latest/installation/tango-on-linux.html#debian-ubuntu">Tango</a>
 apt install mariadb-server
 
 vi /etc/mysql/my.cnf
@@ -36,19 +35,17 @@ vi /etc/mysql/my.cnf
 user=mysqluser
 password=mysqlpass
 
->mysql
-
 apt install tango-db tango-test python-pytango
 
-2. Install scadat
+Install scadat
+---------------------------
 git clone https://github.com/martinmohan99/scadat
 cd scadat
 ./scadat -h
 
-Testing
+Test
 -------
 scadat_test.sh will run unit tests.
-scadat has been tested on debian and ubuntu
 
 CHANGES.txt
 -----------

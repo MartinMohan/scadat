@@ -1,5 +1,5 @@
 Command line interface to [Tango scada]( https://tango-controls.readthedocs.io/en/latest/installation/tango-on-linux.html "Tango")  
-![alt text][docs/tango_logo.png]
+![alt text][./docs/tango_logo.png "Tango"]
 <html><body>
 <p><b>For help:</b> scadat -h</p>
 <head><title>scadat</title></head>
