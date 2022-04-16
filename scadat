@@ -17,8 +17,12 @@
 #   along with this program; if not, write to the Free Software Foundation,
 #   Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
-scadat_version="v0.5.1"
-#scadat_version="2021_01" # Use date for version control
+scadat_version="v0.5.2"
+#define VERSION v0.5.2
+#git commit
+#git tag -a "v0.5.2" -m "version v0.5.2"
+#git tag -d v0.5.2
+
 import os,sys,re,argparse,socket,string,os
 #import PyTango
 try:
@@ -77,7 +81,6 @@ class scadat():
 
         if self.verbose>2:
             print(socket.gethostname() +" ("+socket.gethostbyname(socket.gethostname())+" )")
-#            print("scadat_version "+str(scadat_version))
             print("python.version_info "+str(sys.version))
             print("PyTango.__version_ "+PyTango.__version__)
             print("SUPER_TANGO="+os.getenv("SUPER_TANGO"))
