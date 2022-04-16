@@ -1,7 +1,6 @@
-Command line interface to [Tango scada]( https://tango-controls.readthedocs.io/en/latest/installation/tango-on-linux.html "Tango")  
-<img src="./tango_logo.png">
-
 <html><body>
+Command line interface to <a href="https://tango-controls.readthedocs.io/en/latest/installation/tango-on-linux.html">Tango</a>
+<img src="./tango_logo.png">
 <p>scadat -h</p>
 <pre>
 Usage: [-h] [-v] [-t T] [ -l | -r R [R ...] | -a A [A] | -c C [C] | -p P [P]]
@@ -41,7 +40,8 @@ cd scadat
 Test
 -------
 scadat_test.sh will run unit tests.
+
+TODO: -addserver and -regserver to db
 </pre>
 </body></html>
 
-TODO: -addserver and -regserver to db
