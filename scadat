@@ -39,7 +39,7 @@ class scadat():
 
     def __init__(self,verbose=0,TANGO_HOST="localhost:10000"):
         """set os.environ['TANGO_HOST'] to point to machine required
-        If TANGO_HOST not set use 127.0.0.1:10000
+        If TANGO_HOST not set use localhost:10000
         set verbose level to 0,1,2,3"""
         self.verbose=verbose # global verbose level
         if TANGO_HOST:
