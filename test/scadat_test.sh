@@ -32,7 +32,7 @@ fi
 # Test bad TANGO_HOST's
 TEMP=`echo $TANGO_HOST`
 unset TANGO_HOST
-assertgrep.sh "scadat -v" "0.5.0"
+#assertgrep.sh "scadat -v" "0.5.0"
 export TANGO_HOST="InvalidHostName:1234"
 assertgrep.sh "scadat -v" "InvalidHostName:1234 openDB <class 'socket.gaierror'>" stderr
 export TANGO_HOST=$TEMP
@@ -40,8 +40,8 @@ export TANGO_HOST=$TEMP
 assertgrep.sh "scadat -v -t InvalidHostName:1234" "InvalidHostName:1234 openDB <class 'socket.gaierror'>" stderr
 assertgrep.sh "scadat -v -t mytango:10000" "mytango:10000 openDB <class 'socket.gaierror'>" stderr
 ##exit 1
-assertgrep.sh "scadat" "Linux command line interface to tango"
-assertgrep.sh "scadat -h" "Linux command line interface to tango"
+assertgrep.sh "scadat" "Command line interface to TANGO_HOST"
+assertgrep.sh "scadat -h" "Command line interface to TANGO_HOST"
 # Fix bug devices printed twice
 assertequal.sh "scadat -l -vv | grep dserver/DataBaseds | wc -l" "1" 
 assertequal.sh "scadat -a bad/device/name" "Cannot read device bad/device/name" stderr

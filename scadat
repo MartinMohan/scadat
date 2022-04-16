@@ -17,7 +17,7 @@
 #   along with this program; if not, write to the Free Software Foundation,
 #   Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
-scadat_version="v0.5.4"
+scadat_version="v0.5.5"
 
 import os,sys,re,argparse,socket,string,os
 #import PyTango
@@ -516,7 +516,7 @@ if __name__ == '__main__':
     def myhelp(name=None):                                                            
             return '''Usage: [-h] [-v] [-t T] [ -l | -r R [R ...] | -a A [A] | -c C [C] | -p P [P]]
 
-Command line interface to TANGO_HOST (localhost:10000)
+Command line interface to TANGO_HOST (127.0.0.1:10000)
 
 optional arguments:
   -h            show this help message and exit
