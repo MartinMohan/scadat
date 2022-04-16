@@ -22,6 +22,7 @@ scadat_version="v0.5.2"
 #git commit
 #git tag -a "v0.5.2" -m "version v0.5.2"
 #git tag -d v0.5.2
+#git push origin --tags
 
 import os,sys,re,argparse,socket,string,os
 #import PyTango
