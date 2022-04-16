@@ -1,0 +1,23 @@
+name: Python
+on:
+  push:
+    branches:
+      - main
+jobs:
+
+  build:
+    name: Build Linux
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: release
+      run: |
+        git fetch --tags
+        git tag
+        git config --global user.email "martinmohan@gmail.com"
+        git config --global user.name "Github Action"
+        version=$(git tag --sort=-refname --list "v[0-9]*" | head -n 1)
+        echo "new version $version"
