@@ -33,13 +33,14 @@ apt install tango-db tango-test python-pytango
 
 Install scadat
 ---------------------------
-git clone https://github.com/martinmohan99/scadat
+git clone https://github.com/martinmohan/scadat
 cd scadat
 ./scadat -h
 
 Test
 -------
-scadat_test.sh will run unit tests.
+cd test
+./scadat_test.sh will run unit tests.
 
 TODO: -addserver and -regserver to db
 </pre>
