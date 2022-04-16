@@ -18,6 +18,8 @@ fi
 #newv=$(docker run --rm -v "$PWD":/app treeder/bump --input "$oldv" patch)
 newv=$(echo ${oldv} | awk -F. -v OFS=. '{$NF += 1 ; print}')
 sed -i 's/^scadat_version=.*/scadat_version='\"$newv\"'/g' scadat
+git add .
+git commit -m "version $newv"
 
 echo "newv: $newv"
 
