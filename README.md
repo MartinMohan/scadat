@@ -40,7 +40,7 @@ cd scadat
 Test
 -------
 cd test
-./scadat_test.sh will run unit tests.
+./scadat_test.sh
 
 TODO: -addserver and -regserver to db
 </pre>
