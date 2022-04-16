@@ -13,11 +13,11 @@ optional arguments:
   -t T          Override TANGO_HOST environment variable e.g. scadat -l -t scadat.org:10000
   -l            List tango devices
   -r R [R...]   Read attributes,commands and properties for devices: e.g. scadat -r sys/tg_test/1
-  -a A [A]      Read/Write attributes: e.g.
+  -a A [A]      Write attributes: e.g.
                 scadat -a sys/tg_test/1/string_scalar 'hello world'
-  -c C [C]      Read/Write commands: e.g.
+  -c C [C]      Write commands: e.g.
                 scadat -c sys/tg_test/1/DevLong 1234
-  -p P [P]      Read/Write properties: e.g.
+  -p P [P]      Write properties: e.g.
                 scadat -p sys/tg_test/1/myproperty test
 
 Install <a href="https://tango-controls.readthedocs.io/en/latest/installation/tango-on-linux.html">Tango</a> on debian or ubuntu
