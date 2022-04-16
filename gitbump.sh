@@ -21,5 +21,5 @@ sed -i 's/^scadat_version=.*/scadat_version='\"$newv\"'/g' scadat
 
 echo "newv: $newv"
 
-git tag -a "v$newv" -m "version $newv"
+git tag -a "$newv" -m "version $newv"
 git push --follow-tags
