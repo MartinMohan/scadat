@@ -20,6 +20,27 @@ optional arguments:
                 scadat -c sys/tg_test/1/DevLong 1234
   -p P [P]      Read/Write properties: e.g.
                 scadat -p sys/tg_test/1/myproperty test
+
+Install Tango on debian or ubuntu
+---------------------------
+apt install mariadb-server
+
+vi /etc/mysql/my.cnf
+[client]
+user=mysqluser
+password=mysqlpass
+
+apt install tango-db tango-test python-pytango
+
+Install scadat
+---------------------------
+git clone https://github.com/martinmohan99/scadat
+cd scadat
+./scadat -h
+
+Test
+-------
+scadat_test.sh will run unit tests.
 </pre>
 </body></html>
 
