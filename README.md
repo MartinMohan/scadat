@@ -23,7 +23,4 @@ optional arguments:
 </pre>
 </body></html>
 
-TODO: tango_admin --add-server <exec/inst> <class> <dev list (comma separated)>   Add a server in DB
---reg-server <exec/inst> <dev list>
-
---reg-server
+TODO: -addserver and -regserver to db

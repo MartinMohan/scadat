@@ -17,12 +17,7 @@
 #   along with this program; if not, write to the Free Software Foundation,
 #   Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
-scadat_version="v0.5.2"
-#define VERSION v0.5.2
-#git commit
-#git tag -a "v0.5.2" -m "version v0.5.2"
-#git tag -d v0.5.2
-#git push origin --tags
+scadat_version="v0.5.3"
 
 import os,sys,re,argparse,socket,string,os
 #import PyTango

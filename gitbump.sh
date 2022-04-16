@@ -15,7 +15,10 @@ if [ -z "$oldv" ]; then
    oldv="0.0.0"
 fi
 
-newv=$(docker run --rm -v "$PWD":/app treeder/bump --input "$oldv" patch)
+#newv=$(docker run --rm -v "$PWD":/app treeder/bump --input "$oldv" patch)
+newv=$(echo ${oldv} | awk -F. -v OFS=. '{$NF += 1 ; print}')
+sed -i 's/^scadat_version=.*/scadat_version='\"$newv\"'/g' scadat
+
 echo "newv: $newv"
 
 git tag -a "v$newv" -m "version $newv"
