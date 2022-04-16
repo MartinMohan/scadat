@@ -21,7 +21,7 @@ optional arguments:
   -p P [P]      Read/Write properties: e.g.
                 scadat -p sys/tg_test/1/myproperty test
 
-Install Tango on debian or ubuntu
+Install <a href="https://tango-controls.readthedocs.io/en/latest/installation/tango-on-linux.html">Tango</a> on debian or ubuntu
 ---------------------------
 apt install mariadb-server
 
