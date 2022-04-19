@@ -1,6 +1,6 @@
 <html><body>
 Command line interface to <a href="https://tango-controls.readthedocs.io/en/latest/installation/tango-on-linux.html">Tango</a>
-<img src="./tango_logo.png">
+<img src="./docs/tango_logo.png">
 <p>scadat -h</p>
 <pre>
 Usage: [-h] [-v] [-t T] [ -l | -r R [R ...] | -a A [A] | -c C [C] | -p P [P]]
@@ -43,6 +43,7 @@ cd test
 ./scadat_test.sh
 
 TODO: -addserver and -regserver to db
+
+ <img src="./docs/clients.png" alt="Tango clients"> 
 </pre>
 </body></html>
-
