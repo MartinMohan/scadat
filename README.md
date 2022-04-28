@@ -5,12 +5,11 @@ Command line interface to <a href="https://tango-controls.readthedocs.io/en/late
 <pre>
 Usage: [-h] [-v] [-t T] [ -l | -r R [R ...] | -a A [A] | -c C [C] | -p P [P]]
 
-Linux command line interface to tango
+Command line interface to TANGO_HOST. (default: export TANGO_HOST=localhost:10000)
 
 optional arguments:
   -h            show this help message and exit
   -v            increase verbosity using -v,-vv,-vvv
-  -t T          Override TANGO_HOST environment variable e.g. scadat -l -t scadat.org:10000
   -l            List tango devices
   -r R [R...]   Read attributes,commands and properties for devices: e.g. scadat -r sys/tg_test/1
   -a A [A]      Write attributes: e.g.
