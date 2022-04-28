@@ -20,7 +20,6 @@
 scadat_version="v0.5.12"
 
 import os,sys,re,argparse,socket,string,os
-#import PyTango
 try:
     import PyTango
 except ImportError:
@@ -40,8 +39,8 @@ class scadat():
         if TANGO_HOST:
             os.environ["TANGO_HOST"]=TANGO_HOST
         else:
-            os.environ["TANGO_HOST"]=os.getenv("TANGO_HOST", "127.0.0.1:10000")
-#        print "TANGO_HOST is %s\n"%TANGO_HOST
+            os.environ["TANGO_HOST"]=os.getenv("TANGO_HOST", "localhost:10000")
+#        print ("TANGO_HOST is %s\n"%TANGO_HOST)
         # TANGO_HOST set?
         try:
             self.host,self.port=os.environ['TANGO_HOST'].split(":")
@@ -514,40 +513,38 @@ if __name__ == '__main__':
         return '''[-v] [-h] [ -l | -r R [R ...] | -a A [A] | -c C [C] | -p P [P]]'''
 
     def myhelp(name=None):                                                            
-            return '''Usage: [-h] [-v] [-t T] [ -l | -r R [R ...] | -a A [A] | -c C [C] | -p P [P]]
-
-Command line interface to TANGO_HOST (127.0.0.1:10000)
-
-optional arguments:
-  -h            show this help message and exit
-  -v            increase verbosity using -v,-vv,-vvv
-  -t T          Override TANGO_HOST e.g. scadat -l -t scadat.org:10000
-  -l            List tango devices
-  -r R [R...]   Read all attributes,commands and properties for devices: e.g.
-                scadat -r sys/tg_test/1
-  -a A [A]      Write attributes: e.g.
-                scadat -a sys/tg_test/1/string_scalar 'hello world'
-  -c C [C]      Write commands: e.g.
-                scadat -c sys/tg_test/1/DevLong 1234
-  -p P [P]      Write properties: e.g.
-                scadat -p sys/tg_test/1/myproperty test'''
+#        os.environ["TANGO_HOST"]=os.getenv("TANGO_HOST", "localhost:10000")
+        usage ="Usage: {usg}\n\
+\n\
+Command line interface to TANGO_HOST. (default: export TANGO_HOST=localhost:10000)\n\
+\n\
+optional arguments:\n\
+  -h            show this help message and exit\n\
+  -v            increase verbosity using -v,-vv,-vvv\n\
+  -l            List tango devices\n\
+  -r R [R...]   Read all attributes,commands and properties for devices: e.g.\n\
+                scadat -r sys/tg_test/1\n\
+  -a A [A]      Write attributes: e.g.\n\
+                scadat -a sys/tg_test/1/string_scalar 'hello world'\n\
+  -c C [C]      Write commands: e.g.\n\
+                scadat -c sys/tg_test/1/DevLong 1234\n\
+  -p P [P]      Write properties: e.g.\n\
+                scadat -p sys/tg_test/1/myproperty test".format(usg=usg())
+        return usage
 
     def parse_input():
         """ Parse input to scadat from command line """
-    #    parser = argparse.ArgumentParser(description=\
-    #            "Linux command line interface to tango\n"
-    #            ,formatter_class=argparse.RawTextHelpFormatter)
         parser = argparse.ArgumentParser(description=\
-                "Linux command line interface to tango (default: TANGO_HOST=127.0.0.1:10000)\n"
+                "Linux command line interface to tango (default: TANGO_HOST=localhost:10000)\n"
                 ,formatter_class=argparse.RawTextHelpFormatter,usage='scadat'+usg(),add_help=False)
         parser.add_argument("-h", action="store_true", # When add_help=False this overrides
                 help="override argparse help message")
     
         parser.add_argument("-v", action="count",default=0,
                 help="increase verbosity using -v,-vv,-vvv")
-    #    parser.add_argument("-t", default="127.0.0.1:10000",
-        parser.add_argument("-t",
-                help="Set TANGO_HOST - default 127.0.0.1:10000")
+    #    parser.add_argument("-t", default="localhost:10000",
+#        parser.add_argument("-t",
+#                help="Set TANGO_HOST - default localhost:10000")
         group = parser.add_mutually_exclusive_group()
         group.add_argument("-l",action="store_true",
                 help="List tango devices\n")
@@ -573,7 +570,9 @@ optional arguments:
         return args 
 
     args=parse_input()
-    myscadat=scadat(verbose=args.v,TANGO_HOST=args.t)
+#    myscadat=scadat(verbose=args.v,TANGO_HOST=args.t)
+    os.environ["TANGO_HOST"]=os.getenv("TANGO_HOST", "localhost:10000")
+    myscadat=scadat(verbose=args.v,TANGO_HOST=os.environ["TANGO_HOST"])
 
 # Overriding help
     if args.h:
