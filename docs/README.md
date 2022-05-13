@@ -42,6 +42,6 @@ cd test
 ./scadat_test.sh
 
 A sample server is available at <a href="https://github.com/MartinMohan/Simulator">Simulator</a> 
-<img src="./clients.png" alt="Tango clients"> 
+<img src="./clients.png" alt="./docs/clients.png"> 
 </pre>
 </body></html>
