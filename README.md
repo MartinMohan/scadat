@@ -19,7 +19,7 @@ optional arguments:
   -p P [P]      Write properties: e.g.
                 scadat -p sys/tg_test/1/myproperty test
 
-Install <a href="https://tango-controls.readthedocs.io/en/latest/installation/tango-on-linux.html">Tango</a> on debian or ubuntu
+<a href="https://tango-controls.readthedocs.io/en/latest/installation/tango-on-linux.html">Install Tango</a> on debian or ubuntu
 ---------------------------
 apt install mariadb-server
 
@@ -42,6 +42,7 @@ cd test
 ./scadat_test.sh
 
 A sample server is available at <a href="https://github.com/MartinMohan/Simulator">Simulator</a> 
+
 <img src="./docs/clients.png" alt="./docs/clients.png"> 
 </pre>
 </body></html>
