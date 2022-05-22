@@ -17,7 +17,7 @@
 #   along with this program; if not, write to the Free Software Foundation,
 #   Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
-scadat_version="v0.5.18"
+scadat_version="v0.5.19"
 
 import os,sys,re,argparse,socket,string,os
 try:
@@ -74,19 +74,6 @@ class scadat():
         str_list = []
         print(scadat_version)
 
-        if self.verbose>2:
-            print(socket.gethostname() +" ("+socket.gethostbyname(socket.gethostname())+" )")
-            print("python.version_info "+str(sys.version))
-            print("PyTango.__version_ "+PyTango.__version__)
-            print("SUPER_TANGO="+os.getenv("SUPER_TANGO"))
-            try:
-                print("os.uname %s"%(str(os.uname())))
-                import platform
-                print("platform.dist %s"%(str(platform.dist())))
-                from PyTango.utils import info
-                print (info())
-            except:
-                print("os.platform - fail")
 
         self.openDB()
         if self.verbose>1:
@@ -114,7 +101,7 @@ class scadat():
 #            str_list.append("Cannot open Starter");
 
         try:
-            tango_lib_version=str(DeviceHandle.get_tango_lib_version()) # >PyTango 8.1.0
+            tango_lib_version=str(DeviceHandle.get_tango_lib_version())
             if self.verbose>=2:
                 print("tango_lib_version "+tango_lib_version)
         except Exception as e:
@@ -126,6 +113,21 @@ class scadat():
                 print(myinfo)
         except Exception as e:
             print("%s db.get_info() failed"%os.environ['TANGO_HOST'])
+
+        if self.verbose>2:
+#            print(socket.gethostname() +" ("+socket.gethostbyname(socket.gethostname())+" )")
+            print("### local scadat/PyTango info...")
+            print("python.version_info "+str(sys.version))
+            print("PyTango.__version_ "+PyTango.__version__)
+            print("SUPER_TANGO="+os.getenv("SUPER_TANGO"))
+            try:
+#                print("os.uname %s"%(str(os.uname())))
+#                import platform
+#                print("platform.dist %s"%(str(platform.dist())))
+                from PyTango.utils import info
+                print (info())
+            except:
+                print("PyTango.utils import fail")
 
     def ldev(self):
         """List tango devices
@@ -520,7 +522,7 @@ Command line interface to TANGO_HOST. (default: export TANGO_HOST=localhost:1000
 \n\
 optional arguments:\n\
   -h            show this help message and exit\n\
-  -v            increase verbosity using -v,-vv,-vvv\n\
+  -v            info. increase verbosity using -v,-vv,-vvv\n\
   -l            List tango devices\n\
   -r R [R...]   Read all attributes,commands and properties for devices: e.g.\n\
                 scadat -r sys/tg_test/1\n\
@@ -542,9 +544,6 @@ optional arguments:\n\
     
         parser.add_argument("-v", action="count",default=0,
                 help="increase verbosity using -v,-vv,-vvv")
-    #    parser.add_argument("-t", default="localhost:10000",
-#        parser.add_argument("-t",
-#                help="Set TANGO_HOST - default localhost:10000")
         group = parser.add_mutually_exclusive_group()
         group.add_argument("-l",action="store_true",
                 help="List tango devices\n")
