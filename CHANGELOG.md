@@ -1,3 +1,6 @@
+## 0.5.23 (July 25, 2023)
+  - Read from VERSION
+
 ## 0.5.22 (July 25, 2023)
 
 
