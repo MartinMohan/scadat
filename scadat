@@ -1,0 +1,641 @@
+#!/usr/bin/env python
+##   author:martinmohan@yahoo.com date:  21/02/2014
+#   scadat is a sh command line interface to the tango scada
+#   Copyright (C) <2014>  <Martin Mohan>
+#
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation; either version 3 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program; if not, write to the Free Software Foundation,
+#   Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
+
+scadat_version="v0.5.19"
+
+import os,sys,re,argparse,socket,string,os
+try:
+    import tango
+except ImportError:
+    print >> sys.stderr, "Missing tango: 'sudo apt-get install python-pytango'"
+    sys.exit(1)
+	
+
+class scadat():
+    """This class interfaces to Tango scada
+    read,write attributes,properties commands to 'TANGO_HOST'"""
+
+    def __init__(self,verbose=0,TANGO_HOST="localhost:10000"):
+        """set os.environ['TANGO_HOST'] to point to machine required
+        If TANGO_HOST not set use localhost:10000
+        set verbose level to 0,1,2,3"""
+        self.verbose=verbose # global verbose level
+        if TANGO_HOST:
+            os.environ["TANGO_HOST"]=TANGO_HOST
+        else:
+            os.environ["TANGO_HOST"]=os.getenv("TANGO_HOST", "localhost:10000")
+#        print ("TANGO_HOST is %s\n"%TANGO_HOST)
+        # TANGO_HOST set?
+        try:
+            self.host,self.port=os.environ['TANGO_HOST'].split(":")
+            os.environ['TANGO_HOST']=self.host+":"+self.port
+        except Exception as e:
+            self.handle_exception(e,"Error reading variable TANGO_HOST %s\n"%(os.environ['TANGO_HOST']))
+            sys.exit(1)
+
+    def openDB(self):
+        """If connection ok open Tango Database
+        On success return True (else False). 
+        This is used by commands get_starter_devices(),prop(),info(),ldev()"""
+        # valid open port open
+#        print ("Try to open socket ",self.host," ",string.atoi(self.port))
+        try:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(5)
+            sock.connect((self.host, int(self.port))) 
+            self.db=tango.Database()
+        except Exception as e:
+            self.handle_exception(e,"%s:%s openDB %s\n"%(self.host,self.port,sys.exc_info()[0]))
+            sys.exit(1)
+#            return False
+#        return True
+
+    def info(self):
+        """show info on scadat installation and TANGO_HOST
+        -v,-vv,-vvv for more info"""
+        if self.verbose==0:
+            return
+        str_list = []
+        print(scadat_version)
+
+
+        self.openDB()
+        if self.verbose>1:
+            print("%s openDB() ok"%os.environ['TANGO_HOST'])
+
+        try:
+            host_list=self.db.get_host_list()
+            MyHosts="host_list:"
+            for host in host_list:
+                MyHosts=MyHosts+("\t%s"%(host))
+            if self.verbose>=2:
+                print(MyHosts)
+        except Exception as e:
+            print("%s db.get_host_list() failed"%os.environ['TANGO_HOST'])
+
+        try:
+            starter_device=self.db.get_device_exported_for_class("Starter").value_string[0]
+            DeviceHandle=tango.DeviceProxy(starter_device)
+            Starter=str(DeviceHandle.info())
+            if self.verbose>=2:
+                print("Starter:%s %s"%(starter_device,Starter))
+        except Exception as e:
+#            self.handle_exception(e,"Cannot open Starter\n")
+            print("%s db.get_device_exported_for_class('Starter') failed"%os.environ['TANGO_HOST'])
+#            str_list.append("Cannot open Starter");
+
+        try:
+            tango_lib_version=str(DeviceHandle.get_tango_lib_version())
+            if self.verbose>=2:
+                print("tango_lib_version "+tango_lib_version)
+        except Exception as e:
+            print("%s Starter.get_tango_lib_version failed"%os.environ['TANGO_HOST'])
+
+        try:
+            myinfo=self.db.get_info()
+            if self.verbose>=3:
+                print(myinfo)
+        except Exception as e:
+            print("%s db.get_info() failed"%os.environ['TANGO_HOST'])
+
+        if self.verbose>2:
+#            print(socket.gethostname() +" ("+socket.gethostbyname(socket.gethostname())+" )")
+            print("### local scadat/tango info...")
+            print("python.version_info "+str(sys.version))
+            print("tango.__version_ "+tango.__version__)
+            print("SUPER_TANGO="+os.getenv("SUPER_TANGO"))
+            try:
+#                print("os.uname %s"%(str(os.uname())))
+#                import platform
+#                print("platform.dist %s"%(str(platform.dist())))
+                from tango.utils import info
+                print (info())
+            except:
+                print("tango.utils import fail")
+
+    def ldev(self):
+        """List tango devices
+no verbose  -exported Starter devices
+-v          -All exported devices
+-vv         -All exported devices and associated classnames"""                
+        str_list = []
+
+
+        if self.verbose==0:
+            try:
+                return(self.get_starter_devices())
+            except Exception as e:
+                print ("get_starter_devices failed - 'try scadat -l -v'")
+                os._exit
+#                sys.exit(0) # Calls SystemExit so will not leave
+#        if self.verbose==0:
+#            return(self.get_starter_devices())
+
+        # if verbose > 0 print all devices
+        self.openDB()
+        dev_list=self.db.get_device_exported("*")       # All devices
+        for mydev in dev_list:
+            if self.verbose==1: # v==1 (-v)
+                str_list.append(mydev)
+            myclass=self.db.get_class_for_device(mydev)
+            try:
+                dev_info=self.db.get_device_info(mydev) #Only works tango >= 8.1.0
+                if self.verbose>=2:
+                    str_list.append(mydev+" "+dev_info.ds_full_name)
+            except Exception as e:
+                if self.verbose>=2:
+                    str_list.append(mydev+" "+myclass)
+        return(str_list)
+
+    def split_device_name(self,InputName):
+        """ split device name  sys/tg_test/1/status
+        e.g. sys/tg_test/1/status -> syst/tg_test/1 status"""
+        devices=InputName.split("/")
+        if(len(devices)==4):
+            deviceName="%s/%s/%s"%(devices[0],devices[1],devices[2])
+            attrName=devices[3]
+        elif(len(devices)==3):
+            deviceName="%s/%s/%s"%(devices[0],devices[1],devices[2])
+            attrName=None
+        else:
+            sys.stderr.write("stderr: Invalid name %s (expected aa/bb/cc/<dd>)\n"%(InputName))
+            sys.exit(1)
+        return (deviceName,attrName)
+
+    def rattrib(self,InputName):
+        """Read tango attributes\n\
+        If format sys/tg_test/1 - read all attributes
+        else if format sys/tg_test/1/Status - read one attribute
+        increase verbosity to see more detail"""                
+        str_list = []
+        deviceName,attrName=self.split_device_name(InputName)
+        try:
+            DeviceHandle = tango.DeviceProxy(deviceName)
+        except Exception as e:
+            self.handle_exception(e,"Cannot read device %s\n"%(deviceName))
+            sys.exit(1)
+
+        """ read all attributes in deviceName """
+        if(attrName==None):
+            try:
+                attr_list=DeviceHandle.get_attribute_list()
+            except Exception as e:
+                self.handle_exception(e,"%s Cannot get attr_list\n"%(deviceName))
+#                return
+                return(str_list)
+        else:
+            attr_list=[attrName]
+
+        for attrName in attr_list:
+            lattrName="%s/%s"%(deviceName,str(attrName))
+            try:
+                attr_value=DeviceHandle.read_attribute(attrName)
+
+                if self.verbose==0:
+                    str_list.append("%s"%(lattrName))
+                if self.verbose==1:
+#                    if attr_value.w_value==None:
+                    if attr_value.w_value is None:
+                        str_list.append("%s <attr_ro>"%(lattrName))
+                    else:
+                        str_list.append("%s <attr_w>"%(lattrName))
+                elif self.verbose==2:
+                    str_list.append("%s %s"%(lattrName,attr_value.value))
+
+                if self.verbose>=3:
+                    str_list.append("%s %s"%(lattrName,str(attr_value)))
+            except Exception as e:
+#                self.handle_exception(e,"Exception read_attribute %s\n"%(lattrName),1)
+#                sys.stderr.write("Exception reading %s\n"%lattrName)
+                str_list.append("1.Exception %s"%(lattrName))
+        return (str_list)
+
+    def attrib(self,InputName,arg=None):
+        """Write tango device attribute attrName attr_value"""
+        str_list = []
+        deviceName,attrName=self.split_device_name(InputName)
+
+        if not arg: # If no write arg (just read)
+            return(self.rattrib(InputName))
+        elif attrName and arg:
+            try:         # Try to write attribute:
+                DeviceHandle = tango.DeviceProxy(deviceName)
+                attr_value=DeviceHandle.read_attribute(attrName)
+                input_value=self.getInputType(attr_value.type,arg)
+                attr_value=DeviceHandle.write_attribute(attrName,input_value)
+            except Exception as e:
+                self.handle_exception(e,"stderr: write_attribute(attrName %s,value %s)\n"%(attrName,str(arg)))
+                sys.exit(1)
+
+            lattrName=deviceName+"/"+str(attrName)
+            str_list.append("%s->%s"%(lattrName,str(input_value)))
+        else:
+            sys.stderr.write("Usage: scadat -a aa/bb/cc/dd %s\n"%(arg))
+            sys.exit(1)
+        return(str_list)
+
+    def rcmd(self,InputName):
+        """Read command
+        If format sys/tg_test/1 - print all cmds in device"""
+
+        str_list = []
+        deviceName,attrName=self.split_device_name(InputName)
+        try:
+            DeviceHandle = tango.DeviceProxy(deviceName)
+        except Exception as e:
+            self.handle_exception(e,"Cannot read device %s\n"%(deviceName))
+            sys.exit(1)
+
+        if deviceName and not attrName: # No attrName print all
+            try:
+                cmd_list=DeviceHandle.command_list_query()
+                for cmd in cmd_list:
+                    if self.verbose==0:
+                        str_list.append("%s/%s"%(deviceName,cmd.cmd_name))
+                    if self.verbose==1:
+                        str_list.append("%s/%s <cmd>"%(deviceName,cmd.cmd_name))
+                    if self.verbose==2:
+                        str_list.append("%s/%s <%s>"%(deviceName,cmd.cmd_name,str(cmd.in_type)))
+                    if self.verbose>=3:
+                        str_list.append(str(cmd))
+            except Exception as e:
+                self.handle_exception(e,"%s Cannot get cmd_list\n"%(str(InputName)))
+            return(str_list)
+
+        elif deviceName and attrName: # print usage
+            cmd=DeviceHandle.command_query(attrName)
+            str_list.append("Usage: scadat -c %s %s\n"%(InputName,cmd.in_type))
+            if self.verbose>=1:
+                str_list.append(str(cmd))
+            return(str_list)
+        else: # Unknown input?
+            sys.stderr.write("Usage: scadat -c aa/bb/cc/cmd value\n")
+            sys.exit(1)
+        return(str_list)
+
+    def cmd(self,InputName,arg=None):
+        """If format sys/tg_test/1 - print all (equivalent to cmd_read_all)
+        else if format sys/tg_tes/1/Status - send command to device"""
+        str_list = []
+        deviceName,attrName=self.split_device_name(InputName)
+#        print ("deviceName %s, attrName %s"%(deviceName,attrName))
+
+        if not arg:
+            return(self.rcmd(InputName))
+        elif attrName and arg: # command with arguments
+            DeviceHandle = tango.DeviceProxy(deviceName)
+            try:         # Try to write command:
+                cmd_type=DeviceHandle.command_query(attrName)
+#                print ("cmd_type.in_type %s arg %s"%(cmd_type.in_type,arg))
+                input_arg=self.getInputType(cmd_type.in_type,arg)
+                cmd_arg=DeviceHandle.command_inout(attrName,input_arg)
+                str_list.append("%s"%(cmd_arg))
+            except Exception as e:
+                self.handle_exception(e,"Error writing cmd %s->%s\n" %(attrName,arg))
+                return(str_list)
+        else:
+            sys.stderr.write("Usage: scadat -c aa/bb/cc/cmd_name cmd_value\n")
+            sys.exit(1)
+        return(str_list)
+
+    def rprop(self,InputName):
+        """Read properties of a device\n\
+        test/simulator/rampx1/* - read all attributes
+        test/simulator/rampx1/DeviceNr - read one attribute
+        -bug in tango db.get_device_list() does not read default values sourceforge feature request 121 """                
+        str_list = []
+        deviceName,attrName=self.split_device_name(InputName)
+
+        """ read all properties in deviceName """
+        if(attrName==None or attrName=='*'):
+            attrName='*'                
+
+        self.openDB()
+        try:
+            prop_list=self.db.get_device_property_list(deviceName,attrName).value_string
+#            if self.verbose>1:
+#                print("db.device_property_list(%s,%s) -> %s\n"%(deviceName,attrName,prop_list))
+        except Exception as e:
+            if self.verbose>0:
+                self.handle_exception(e,"Empty get_device_property_list(%s,%s)\n"%(deviceName,attrName))
+
+        for attrName in prop_list:
+            lattrName="%s/%s"%(deviceName,str(attrName))
+#            print ("xxx lattrName attrName %s %s"%(lattrName,attrName))
+            try:
+                propValue=self.db.get_device_property(deviceName,attrName)
+                if self.verbose==0:
+#                    print ("xxx propValue %s"%(propValue))
+                    if propValue:
+                        str_list.append("%s"%(lattrName))
+#                        str_list.append("%s"%(propValue))
+                if self.verbose==1:
+                    if propValue:
+                        str_list.append("%s <prop>"%(lattrName))
+                elif self.verbose>=2:
+                    for keys,values in propValue.items():
+#                        str_list.append("%s: %s %s"%(lattrName,keys,values))
+                        str_list.append("%s %s"%(lattrName,values))
+            except Exception as e:
+                self.handle_exception(e,"2.Exception get_device_property %s\n"%(lattrName),1)
+        return(str_list)
+
+    def prop(self,InputName,arg=None):
+        """Write tango device property attrName/propValue
+        you may need to restart server for device to take effect"""
+        str_list = []
+        deviceName,attrName=self.split_device_name(InputName)
+
+        if not arg:
+            return(self.rprop(InputName))
+        elif attrName and arg:
+            """Write to prop"""
+            try:
+                self.openDB()
+                propValue=self.db.get_device_property(deviceName,attrName)
+                mydict={}
+                mydict[attrName]=str(arg)
+#                mydict2=tangoDbDatum(attrname)
+#                mydict2.value_string.append(str(arg))
+#                mydict{attrName:str(arg)}
+                if self.verbose>=1:
+                    str_list.append(self.rprop(InputName))
+                    str_list.append("self.db.put_device_property(%s,%s)"%(deviceName,mydict))
+#                print ("deviceName %s, mydict %s"%(deviceName, mydict))
+#               put_device_property throws exception - tango ticket?
+                self.db.put_device_property(deviceName,mydict)
+#                str_list.append("%s %s->%s"%(InputName,propValue[attrName],str(arg)))
+#
+            except Exception as e:
+                # Writing to property throws an exception but the the 
+                # exception is registered? 1. Why is it registered?
+                # 2. What use are dynamic properties?
+                self.handle_exception(e,"self.db.put_device_property(%s,dict(%s=%s)) - open a pyTango problem ticket?\n"%(deviceName,attrName,arg))
+        else:
+            sys.stderr.write("Usage: scadat -p aa/bb/cc/prop %s\n"%(arg))
+            sys.exit(1)
+        return(str_list)             
+
+    def get_starter_devices(self):
+        """Read device Starter e.g. tango/admin/scadat"""
+        self.openDB()
+        str_list = []
+        starter_device="unknown_starter"
+        starter_device=self.db.get_device_exported_for_class("Starter").value_string[0]
+#        try:
+#            starter_device=self.db.get_device_exported_for_class("Starter").value_string[0]
+#        except:
+#            print ("get_device_exported_for_class Starter failed. Try scadat -l -v")
+#            sys.exit(0)
+        DeviceHandle = tango.DeviceProxy(starter_device)
+        RunningServers=DeviceHandle.read_attribute("RunningServers").value
+
+#            print "RunningServers %s\n"%str(RunningServers)
+        devicelist=[]
+        serverName=""
+        for servers in RunningServers:
+            serverName=servers.split("/")[0] # Simulator/test -> Simulator
+            deviceNames=self.db.get_device_exported_for_class(serverName)
+            for deviceName in deviceNames:
+            # Avoid double deviceNames
+                if not any(deviceName in s for s in devicelist):
+                    str_list.append(deviceName)
+                    devicelist.append(deviceName)
+#        except Exception as e:
+#            self.handle_exception(e,"Error reading %s/RunningServers from %s:%s"%(starter_device,self.host,self.port))
+#        except: # catch *all* exceptions
+#        except Exception as e:
+#            e = sys.exc_info()[0]
+#            sys.stderr.write( "get_starter_devices %s" % e )
+#        return('\n'.join(str_list))
+#        return(str_list)
+        return(str_list)
+
+    def getInputType(self,cmd_type,value):
+        """Convert tango format to 'normal' format
+        e.g. tango.DevFloat to float.
+        Otherwise command will not work?"""
+#        print ("1. In:getInputType cmd_type==%s,value=%s"%(cmd_type,value))
+
+        if cmd_type == tango.DevFloat:
+            return float(value)
+        elif cmd_type == tango.DevDouble:
+            return float(value)
+        elif cmd_type == tango.DevLong:
+#            print("In tango.DevLong cmd_type %s, value %s ,type(value) %s"%(cmd_type,value,type(value)))
+            return int(value)
+        elif cmd_type == tango.DevLong64:
+            return int(value)
+        elif cmd_type == tango.DevULong64:
+            return int(value)
+        elif cmd_type == tango.DevULong:
+            return int(value)
+        elif cmd_type == tango.DevInt:
+            return int(value)
+        elif cmd_type == tango.DevBoolean:
+            if value==str(0):
+                return False
+            else:
+                return True
+        elif cmd_type == tango.DevShort:
+            return int(value)
+        elif cmd_type == tango.DevUShort:
+            return int(value)
+        elif cmd_type == tango.DevString:
+            return str(value)
+        elif cmd_type == tango.DevVarLongArray:
+#            print ("DevVarLongArray value= %s"%value)
+#            print ("DevVarLongArray value.split()= %s"%value.split())
+#            print ("DevVarLongArray map=%s"%map(int, value.split()))
+#            return map(int, value.split())
+            return list(map(int, value.split()))
+        elif cmd_type == tango.DevVarLong64Array:
+            return list(map(int, value.split()))
+        elif cmd_type == tango.DevVarULong64Array:
+            return list(map(int, value.split()))
+        elif cmd_type == tango.DevVarFloatArray:
+            return list(map(float, value.split()))
+        elif cmd_type == tango.DevVarDoubleArray:
+            return list(map(float, value.split()))
+        elif cmd_type == tango.DevVarShortArray:
+            return list(map(int, value.split()))
+        elif cmd_type == tango.DevVarUShortArray:
+            return list(map(int, value.split()))
+        elif cmd_type == tango.DevVarStringArray:
+            return list(map(str, value.split()))
+        elif cmd_type == tango.DevVoid:
+            return None
+# Not sure about stuff below
+        elif cmd_type == tango.DevVarDoubleStringArray:
+            return "tango.DevVarDoubleStringArray:Not tested yet"
+#            return map(str, value.split())
+        elif cmd_type == tango.DevVarCharArray:
+#           "1 2 3 4" -> [1 2 3 4]
+            return "tango.DevVarCharArray:Not tested yet"
+        elif cmd_type == tango.DevVarLongStringArray:
+            return "tango.DevVarLongStringArray:Not tested yet"
+        elif cmd_type == tango.DevState:
+            return "tango.DevVarLongStringArray:Not tested yet"
+        else:
+            print("Unknown cmd_type %s")%cmd_type
+            return "Unknown cmd_type %s"%cmd_type
+
+    ## Use v for more verbose error handling
+    def handle_exception(self,e,message="Exception",v=0):
+        """ Handle exception"""
+        if v==0:
+            sys.stderr.write("%s"%(message))
+        elif v>=1:
+            sys.stderr.write("%s %s"%(e,message))
+#            sys.stderr.write(message)
+
+if __name__ == '__main__':
+    # export SUPER_TANGO="true" - if enviroment variable not set
+    if not os.getenv("SUPER_TANGO"):
+        os.environ["SUPER_TANGO"] = "true"
+#        print ("SUPER_TANGO=",os.getenv("SUPER_TANGO"))
+
+    def usg(name=None):                                                            
+        return '''[-v] [-h] [ -l | -r R [R ...] | -a A [A] | -c C [C] | -p P [P]]'''
+
+    def myhelp(name=None):                                                            
+#        os.environ["TANGO_HOST"]=os.getenv("TANGO_HOST", "localhost:10000")
+        usage ="Usage: {usg}\n\
+\n\
+Command line interface to TANGO_HOST. (default: export TANGO_HOST=localhost:10000)\n\
+\n\
+optional arguments:\n\
+  -h            show this help message and exit\n\
+  -v            info. increase verbosity using -v,-vv,-vvv\n\
+  -l            List tango devices\n\
+  -r R [R...]   Read all attributes,commands and properties for devices: e.g.\n\
+                scadat -r sys/tg_test/1\n\
+  -a A [A]      Write attributes: e.g.\n\
+                scadat -a sys/tg_test/1/string_scalar 'hello world'\n\
+  -c C [C]      Write commands: e.g.\n\
+                scadat -c sys/tg_test/1/DevLong 1234\n\
+  -p P [P]      Write properties: e.g.\n\
+                scadat -p sys/tg_test/1/myproperty test".format(usg=usg())
+        return usage
+
+    def parse_input():
+        """ Parse input to scadat from command line """
+        parser = argparse.ArgumentParser(description=\
+                "Linux command line interface to tango (default: TANGO_HOST=localhost:10000)\n"
+                ,formatter_class=argparse.RawTextHelpFormatter,usage='scadat'+usg(),add_help=False)
+        parser.add_argument("-h", action="store_true", # When add_help=False this overrides
+                help="override argparse help message")
+    
+        parser.add_argument("-v", action="count",default=0,
+                help="increase verbosity using -v,-vv,-vvv")
+        group = parser.add_mutually_exclusive_group()
+        group.add_argument("-l",action="store_true",
+                help="List tango devices\n")
+        group.add_argument("-r",nargs='+',
+                help="Read all attributes,properties and cmds of a device: e.g.\n"
+                "scadat -r sys/tg_test/1\n")
+        group.add_argument("-a",nargs='+',
+                help="Write attributes of a device: e.g.\n"
+                "scadat -a sys/tg_test/1\n"
+                "scadat -a sys/tg_test/1/string_scalar 'hello world'")
+        group.add_argument("-c",nargs='+',
+                help="Write commands to a device: e.g.\n"
+                "scadat -c sys/tg_test/1 -v\n"
+                "scadat -c sys/tg_test/1/DevLong 1234\n")
+        group.add_argument("-p",nargs='+',
+                help="Write properties to a device: e.g.\n"
+                "scadat -p test/simulator/rampx2 -v\n"
+                "scadat -p test/simulator/rampx2/DeviceNr 2")
+        args=parser.parse_args()
+    
+        if len(sys.argv)==1:
+            args.h=1
+        return args 
+
+    args=parse_input()
+#    myscadat=scadat(verbose=args.v,TANGO_HOST=args.t)
+    os.environ["TANGO_HOST"]=os.getenv("TANGO_HOST", "localhost:10000")
+    myscadat=scadat(verbose=args.v,TANGO_HOST=os.environ["TANGO_HOST"])
+
+# Overriding help
+    if args.h:
+        print ("%s"%(myhelp()))
+#        myscadat.info()
+#        sys.exit(0)
+
+    if args.l:
+        try:
+            print ('\n'.join(myscadat.ldev()))
+        except:
+#            print ("Exception calling ldev try verbose=1")
+            myscadat.verbose=1
+            print ('\n'.join(myscadat.ldev()))
+    elif args.a:
+        if len(args.a)==1:
+            print ('\n'.join(myscadat.attrib(args.a[0])))
+        elif len(args.a)==2:
+            print ('\n'.join(myscadat.attrib(args.a[0],args.a[1])))
+        else:
+            print ("Usage: scadat -a sys/tg_test/1/attr_name <value>")
+    elif args.c:
+        if len(args.c)==1:
+            print ('\n'.join(myscadat.cmd(args.c[0])))
+        elif len(args.c)==2:
+            print ('\n'.join(myscadat.cmd(args.c[0],args.c[1])))
+        else:
+                print ("Usage: scadat -c sys/tg_test/1/cmd <value>")
+    elif args.p:
+        if len(args.p)==1:
+            print ('\n'.join(myscadat.prop(args.p[0])))
+        elif len(args.p)==2:
+            print ('\n'.join(myscadat.prop(args.p[0],args.p[1])))
+        else:
+            print ("Usage: scadat -p sys/tg_test/1/prop_name <value>")
+
+    elif args.r:
+        for arg in args.r:
+            deviceName,attrName=myscadat.split_device_name(arg)
+            cmdType="Invalid"
+            if attrName:
+                try:
+                    cmdType="attr"
+                    print ('\n'.join(myscadat.rattrib(arg)))
+                except:
+                    pass
+                try:
+                    cmdType="cmd"
+                    print ('\n'.join(myscadat.rcmd(arg)))
+                except:
+                    pass
+                try:
+                    cmdType="prop"
+                    print ('\n'.join(myscadat.rprop(arg)))
+                except:
+                    pass
+
+                if cmdType=="Invalid":
+                    sys.stderr.write("arg expected attrib/cmd/prop type %s\n"%arg)
+                    sys.exit(1)
+            else:
+                print ('\n'.join(myscadat.attrib(arg)))
+                print ('\n'.join(myscadat.cmd(arg)))
+                print ('\n'.join(myscadat.prop(arg)))
+
+    elif args.v:
+        myscadat.info()
